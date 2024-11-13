@@ -1,0 +1,36 @@
+#!/bin/bash
+
+# Récupère le chemin du dossier racine du projet Git
+root=$(git rev-parse --show-toplevel)
+# Récupère la liste des fichiers ajoutés (staged) pour le commit
+list=$(git diff --name-only --cached)
+
+# Initialise une variable pour suivre les fichiers non formatés
+unformatted_files=0
+
+# Boucle sur chaque fichier de la liste
+while IFS= read -r file; do
+    # On vérifie si le fichier existe et qu'il est au format .c
+    if [[ -f "$file" && "$file" == *.c ]]; then
+        # Exécute clang-format sur le fichier et stocke la sortie
+        formatted_output=$(clang-format "$file")
+        original_content=$(cat "$file")
+
+        # Compare le contenu formaté avec le contenu original
+        if [[ "$formatted_output" != "$original_content" ]]; then
+            echo "Le fichier $file n'est pas correctement formaté."
+            unformatted_files=1
+        fi
+    fi
+done <<< "$list"
+
+# Si un fichier .c n'est pas bien formaté, on empêche le commit
+if [[ $unformatted_files -eq 1 ]]; then
+    echo "Erreur : Un ou plusieurs fichiers .c ne sont pas formatés correctement."
+    echo "Veuillez exécuter 'clang-format' sur ces fichiers avant de committer."
+    exit -1
+fi
+
+# Autorise le commit si tous les fichiers .c sont bien formatés
+exit 0
+
