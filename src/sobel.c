@@ -40,7 +40,7 @@ void sobel(int width, int height, unsigned char *input, unsigned char *output) {
           input[(j - 1) * width + i + 1] + input[j * width + i + 1] + input[(j + 1) * width + i + 1] +
           input[(j - 1) * width + i + 1] + input[j * width + i + 1] + input[(j + 1) * width + i + 1];
 
-    }
+   }
   }
 
   // Fill the left and right sides
