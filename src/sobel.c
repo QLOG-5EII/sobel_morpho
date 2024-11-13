@@ -20,12 +20,12 @@ void sobel(int width, int height, unsigned char *input, unsigned char *output) {
   // Apply the filter
   for (j = 1; j < height - 1; j++) {
     for (i = 1; i < width - 1; i++) {
-      int gx = -input[(j - 1) * width + i + 1] - 2 * input[j * width + i - 1] -
+      int gx = -input[(j - 1) * width + i + 1] - 4 * input[j * width + i - 1] -
                input[(j + 1) * width + i - 1] + input[(j - 1) * width + i + 1] +
-               2 * input[j * width + i + 1] + input[(j + 1) * width + i + 1];
+               4 * input[j * width + i + 1] + input[(j + 1) * width + i + 1];
       int gy = -input[(j - 1) * width + i - 1] -
-               2 * input[(j - 1) * width + i] - input[(j - 1) * width + i + 1] +
-               input[(j + 1) * width + i - 1] + 2 * input[(j + 1) * width + i] +
+               4 * input[(j - 1) * width + i] - input[(j - 1) * width + i + 1] +
+               input[(j + 1) * width + i - 1] + 4 * input[(j + 1) * width + i] +
                input[(j + 1) * width + i + 1];
 
       output[(j-1)*width + i] = fminf(sqrtf(gx * gx + gy * gy), 255);
