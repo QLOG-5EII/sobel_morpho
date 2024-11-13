@@ -21,7 +21,7 @@ jobs:
     - name: Compile project
       run: |
         cd src
-        gcc -o sobel_morpho main.c sobel.c morpho.c -lm
+        gcc -o sobel_morpho sobel.c morpho.c -lm
         
     - name: Run compiled program
       run: |
