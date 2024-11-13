@@ -1,0 +1,37 @@
+#!/bin/bash
+
+# Obtenir le chemin absolu du dossier git
+root=$(git rev-parse --show-toplevel)
+# Récupérer la liste des fichiers ajoutés dans l'index (staged)
+list=$(git diff --name-only --cached)
+
+# Variable pour suivre les fichiers mal formatés
+unformatted_files=()
+
+# Boucle sur chaque fichier staged pour vérifier le format
+while IFS= read -r file; do
+    # Chemin complet du fichier
+    full_path="$root/$file"
+
+    # Vérifier si le fichier est un fichier C/C++ pour appliquer clang-format
+    if [[ "$file" == *".c" || "$file" == *".cpp" || "$file" == *".h" ]]; then
+        # Comparer le fichier formaté avec le fichier actuel
+        if ! diff -q <(clang-format "$full_path") "$full_path" > /dev/null; then
+            # Ajouter le fichier à la liste des fichiers mal formatés
+            unformatted_files+=("$file")
+        fi
+    fi
+done <<< "$list"
+
+# Si des fichiers sont mal formatés, afficher un message et empêcher le commit
+if [ ${#unformatted_files[@]} -ne 0 ]; then
+    echo "Les fichiers suivants ne sont pas correctement formatés :"
+    for file in "${unformatted_files[@]}"; do
+        echo "  - $file"
+    done
+    echo "Veuillez exécuter clang-format sur ces fichiers avant de committer."
+    exit 1
+fi
+
+# Si tout est correctement formaté, le commit est autorisé
+exit 0
