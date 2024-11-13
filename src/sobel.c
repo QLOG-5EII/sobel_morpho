@@ -15,26 +15,25 @@
 #include "sobel.h"
 
 void sobel(int width, int height, unsigned char *input, unsigned char *output) {
-  int i, j;
+int kernel_size = 3;  // Filtre 3x3
+int sum, i, j, k, l;
 
-  // Apply the filter
-  for (j = 1; j < height - 1; j++) {
-    for (i = 1; i < width - 1; i++) {
-      int gx = -input[(j - 1) * width + i + 1] - 2 * input[j * width + i - 1] -
-               input[(j + 1) * width + i - 1] + input[(j - 1) * width + i + 1] +
-               2 * input[j * width + i + 1] + input[(j + 1) * width + i + 1];
-      int gy = -input[(j - 1) * width + i - 1] -
-               2 * input[(j - 1) * width + i] - input[(j - 1) * width + i + 1] +
-               input[(j + 1) * width + i - 1] + 2 * input[(j + 1) * width + i] +
-               input[(j + 1) * width + i + 1];
+    // Parcourir tous les pixels de l'image
+    for (i = 1; i < height - 1; i++) {
+        for (j = 1; j < width - 1; j++) {
+            sum = 0;
+            
+            // Appliquer le filtre moyenneur (3x3)
+            for (k = -1; k <= 1; k++) {
+            	for (l = -1; l <= 1; l++) {
+                    sum += input[(i + k) * width + (j + l)];
+                }
+            }
 
-      output[(j-1)*width + i] = fminf(sqrtf(gx * gx + gy * gy), 255);
+            // Calculer la moyenne et appliquer au pixel de sortie
+            output[i * width + j] = sum / (kernel_size * kernel_size);
+        }
     }
   }
 
-  // Fill the left and right sides
-  for (j = 0; j < height - 2; j++) {
-    output[j * width] = 0;
-    output[(j + 1) * width - 1] = 0;
-  }
-}
+
