@@ -31,7 +31,8 @@ void sobel(int width, int height, unsigned char *input, unsigned char *output) {
                input[(j + 1) * width + i - 1] + 2 * input[(j + 1) * width + i] +
                input[(j + 1) * width + i + 1];
 
-      output[(j-1)*width + i] = fminf(sqrtf(gx * gx + gy * gy), 255);
+      output[(j - 1) * width + i] = (gx * gx + gy * gy) / 666; // conflict resolved
+
     }
   }
 
