@@ -15,6 +15,7 @@
 #include "sobel.h"
 
 void sobel(int width, int height, unsigned char *input, unsigned char *output) {
+
   int i, j;
 
   // Apply the filter
