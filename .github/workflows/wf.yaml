@@ -21,4 +21,4 @@ jobs:
     - name: Compile project
       run: |
         cd src
-        gcc -c sobel.c ../include/sobel.h -lm
+        gcc sobel.c ../include/sobel.h -lm
