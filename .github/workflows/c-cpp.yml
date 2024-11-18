@@ -13,13 +13,15 @@ jobs:
  
     - name: get file src git
       uses: actions/checkout@v4
+      
     - name: compile
       run: |
-        cd src
-        make
+        ./CMakeGCC.sh
+        
     - name: execute
       run: |
         ./generated/main.c
+        
     - name: verify execution
       run: |
         echo "Tada Programme Bien execute"
