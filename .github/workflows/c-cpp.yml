@@ -19,8 +19,7 @@ jobs:
         cmake
         
     - name: execute
-      run: |
-        . cd build  
+      run: |  
         ./sobel
         
     - name: verify execution
