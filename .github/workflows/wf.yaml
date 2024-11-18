@@ -22,3 +22,22 @@ jobs:
         run: |
           Release/sobel
       
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Récupérer le code source
+        uses: actions/checkout@v2
+
+      - name: Installer les outils de compilation
+        run: |
+          choco install cmake --installargs 'ADD_CMAKE_TO_PATH=System' -y
+          choco install mingw --version=8.1.0 -y
+
+      - name: Compiler le projet
+        run: |
+          cmake -G "MinGW Makefiles" .
+          mingw32-make
+
+      - name: Exécuter le programme
+        run: |
+          Release/sobel.exe
