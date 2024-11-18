@@ -26,5 +26,5 @@ jobs:
 
     - name: Run the program
       run: |
-        cd build
-        ./<nom_programme>
+        cd Release
+        ./sobel
