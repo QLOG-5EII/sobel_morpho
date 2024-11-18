@@ -2,23 +2,29 @@ name: CI Ubuntu
 
 on:
   push:
-    branches: [ main ]
-  workflow_dispatch:
+    branches:
+      - main
+  workflow_dispatch: # Déclenchement manuel
 
 jobs:
   build-and-run:
     runs-on: ubuntu-latest
-    
+
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
-      
-    - name: Set up build environment
+    #- name: Checkout code
+    #  uses: actions/checkout@v3
+
+    - name: Set up CMake
+      run: sudo apt-get update && sudo apt-get install -y cmake
+
+    - name: Configure and Build
       run: |
-        sudo apt-get update
-        sudo apt-get install -y build-essential
-        
-    - name: Compile project
+        mkdir build
+        cd build
+        cmake ..
+        cmake --build .
+
+    - name: Run the program
       run: |
-        cd src
-        gcc sobel.c sobel.h -lm
+        cd build
+        ./<nom_programme>
