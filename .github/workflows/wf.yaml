@@ -43,26 +43,18 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
-    - name: Set up CMake
-      run: |
-        choco install cmake --version=3.21.3 --yes
-
-    - name: Install dependencies
-      run: |
-        choco install sdl2 --yes
-        choco install sdl2-ttf --yes
-
+    #- name: Install dependencies
+    #  run: |
+    #    choco install sdl2 --yes
+    #    choco install sdl2-ttf --yes
     - name: Configure and Build
       run: |
         mkdir build
         cd build
         cmake .. 
         cmake --build .
-
     - name: Run the program
       run: |
         cd build
         cd Release
         .\sobel.exe
-
-        
