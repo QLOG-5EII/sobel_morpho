@@ -7,23 +7,19 @@ on:
   workflow_dispatch: # Déclenchement manuel
 
 jobs:
-  build-and-run:
+  # FOR LINUX
+  build-and-run-ubuntu:
     runs-on: ubuntu-latest
-
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
-
     # For Dependencies
     - name: Install SDL2
       run: sudo apt-get update && sudo apt-get install -y libsdl2-dev
-
     - name: Install SDL2 ttf
       run: sudo apt-get update && sudo apt-get install -y libsdl2-ttf-dev
-    
     - name: Set up CMake
       run: sudo apt-get update && sudo apt-get install -y cmake
-
     # Building project
     - name: Configure and Build
       run: |
@@ -31,14 +27,42 @@ jobs:
         cd build
         cmake ..
         cmake --build .
-
     # Check contents of repo
     #- name: Running ls
     #  run: ls
-    
     # Running the program
     - name: Run the program
       run: |
        cd build
        cd Release
        ./sobel
+
+# FOR WINDOWS
+  build-and-run-windows:
+    runs-on: windows-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    - name: Set up CMake
+      run: |
+        choco install cmake --version=3.21.3 --yes
+
+    - name: Install dependencies
+      run: |
+        choco install sdl2 --yes
+        choco install sdl2-ttf --yes
+
+    - name: Configure and Build
+      run: |
+        mkdir build
+        cd build
+        cmake .. 
+        cmake --build .
+
+    - name: Run the program
+      run: |
+        cd build
+        cd Release
+        .\sobel.exe
+
+        
