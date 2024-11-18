@@ -1,0 +1,42 @@
+name: CI for sobel_morpho
+
+on:
+  push:
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+
+    steps:
+      - name: Récupérer le code source
+        uses: actions/checkout@v2
+
+      - name: Installer les outils de compilation
+        run: |
+          if [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
+            sudo apt-get update
+            sudo apt-get install -y build-essential cmake libsdl2-ttf-dev
+          else
+            choco install cmake --installargs 'ADD_CMAKE_TO_PATH=System' -y
+            choco install mingw --version=8.1.0 -y
+          fi
+
+      - name: Compiler le projet
+        run: |
+          if [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
+            cmake .
+            make
+          else
+            cmake -G "MinGW Makefiles" .
+            mingw32-make
+          fi
+
+      - name: Exécuter le programme
+        run: |
+          if [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
+            Release/sobel
+          else
+            Release/sobel.exe
