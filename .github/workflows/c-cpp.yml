@@ -14,12 +14,17 @@ jobs:
     - name: get file src git
       uses: actions/checkout@v4
       
-    - name: compile
+    - name: Configure and Build
       run: |
-        cmake
+        mkdir build
+        cd build
+        cmake ..
+        cmake --build .
         
     - name: execute
       run: |  
+        cd build
+        cd Release
         ./sobel
         
     - name: verify execution
