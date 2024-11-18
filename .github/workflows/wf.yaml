@@ -14,12 +14,17 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
+    # For Dependencies
     - name: Install SDL2
       run: sudo apt-get update && sudo apt-get install -y libsdl2-dev
 
+    - name: Install SDL2 ttf
+      run: sudo apt-get update && sudo apt-get install -y libsdl2-ttf-dev
+    
     - name: Set up CMake
       run: sudo apt-get update && sudo apt-get install -y cmake
 
+    # Building project
     - name: Configure and Build
       run: |
         mkdir build
@@ -27,6 +32,7 @@ jobs:
         cmake ..
         cmake --build .
 
+    # Running the program
     - name: Run the program
       run: |
         cd Release
