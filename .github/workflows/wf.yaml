@@ -56,8 +56,11 @@ jobs:
     # Check contents of repo
     - name: Running dir
       run: |
-          dir
           cd build
+          cd sobel.dir
+          dir
+          cd ..
+          cd x64
           dir
     #- name: Run the program
     #  run: |
