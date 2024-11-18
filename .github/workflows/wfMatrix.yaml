@@ -14,29 +14,38 @@ jobs:
       - name: Récupérer le code source
         uses: actions/checkout@v2
 
-      - name: Installer les outils de compilation
+      - name: Installer les outils de compilation Ubuntu
+      	if ${{ matrix.os == 'ubuntu-latest' }}
         run: |
-          if ${{ matrix.os == 'ubuntu-latest' }}; then
             sudo apt-get update
             sudo apt-get install -y build-essential cmake libsdl2-ttf-dev
-          else
+
+      - name: Installer les outils de compilation Windows
+      	if ${{ matrix.os == 'windows-latest' }}
+        run: |
             choco install cmake --installargs 'ADD_CMAKE_TO_PATH=System' -y
             choco install mingw --version=8.1.0 -y
-          fi
-
-      - name: Compiler le projet
+            
+            
+      - name: Compiler le projet Ubuntu
+      	if ${{ matrix.os == 'ubuntu-latest' }}
         run: |
-          if ${{ matrix.os == 'ubuntu-latest' }}; then
             cmake .
             make
-          else
+            
+      - name: Compiler le projet Windows
+      	if ${{ matrix.os == 'windows-latest' }}
+        run: |
             cmake -G "MinGW Makefiles" .
             mingw32-make
-          fi
 
-      - name: Exécuter le programme
+
+      - name: Exécuter le programme Ubuntu
+      	if ${{ matrix.os == 'ubuntu-latest' }}
         run: |
-          if ${{ matrix.os == 'ubuntu-latest' }}; then
             Release/sobel
-          else
+      
+      - name: Exécuter le programme Windows
+      	if ${{ matrix.os == 'windows-latest' }}
+        run: |
             Release/sobel.exe
