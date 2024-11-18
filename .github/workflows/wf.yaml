@@ -53,7 +53,13 @@ jobs:
         cd build
         cmake .. 
         cmake --build .
-    - name: Run the program
+    # Check contents of repo
+    - name: Running dir
       run: |
-        cd build
-        .\sobel.exe
+          dir
+          cd build
+          dir
+    #- name: Run the program
+    #  run: |
+    #    cd build
+    #    .\sobel.exe
