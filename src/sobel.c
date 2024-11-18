@@ -32,7 +32,6 @@ void sobel(int width, int height, unsigned char *input, unsigned char *output) {
 
       output[(j - 1) * width + i] = (gx * gx + gy * gy) / 8;
 
-
       //moyenneur
 /*
       output[(j - 1) * width + i] =
