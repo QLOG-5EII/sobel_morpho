@@ -33,11 +33,12 @@ jobs:
         cmake --build .
 
     # Check contents of repo
-    - name: Running ls
-      run: ls
+    #- name: Running ls
+    #  run: ls
     
     # Running the program
-    #- name: Run the program
-    #  run: |
-    #   cd Release
-    #   ./sobel
+    - name: Run the program
+      run: |
+       cd build
+       cd Release
+       ./sobel
