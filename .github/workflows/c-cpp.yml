@@ -16,11 +16,11 @@ jobs:
       
     - name: compile
       run: |
-        ./CMakeGCC.sh
+        cmake
         
     - name: execute
       run: |
-        ./generated/main.c
+        ./sobel
         
     - name: verify execution
       run: |
