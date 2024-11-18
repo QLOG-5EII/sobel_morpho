@@ -4,7 +4,7 @@ on:
   push:
 
 jobs:
-  build:
+  buildMatrix:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -16,7 +16,7 @@ jobs:
 
       - name: Installer les outils de compilation
         run: |
-          if [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
+          if ${{ matrix.os == 'ubuntu-latest' }}; then
             sudo apt-get update
             sudo apt-get install -y build-essential cmake libsdl2-ttf-dev
           else
@@ -26,7 +26,7 @@ jobs:
 
       - name: Compiler le projet
         run: |
-          if [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
+          if ${{ matrix.os == 'ubuntu-latest' }}; then
             cmake .
             make
           else
@@ -36,7 +36,7 @@ jobs:
 
       - name: Exécuter le programme
         run: |
-          if [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
+          if ${{ matrix.os == 'ubuntu-latest' }}; then
             Release/sobel
           else
             Release/sobel.exe
