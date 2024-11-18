@@ -20,5 +20,5 @@ jobs:
 
       - name: Exécuter le programme
         run: |
-          ./sobel
+          Release/sobel
       
