@@ -1,0 +1,12 @@
+name: CI for sobel_morpho github
+on: push
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:   
+      run: |
+        npm ci
+        npm run build
+        npm test
+      name: Build and Test
