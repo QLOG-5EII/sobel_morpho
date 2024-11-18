@@ -5,7 +5,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:   
-      run: |
+    - run: |
         npm ci
         npm run build
         npm test
