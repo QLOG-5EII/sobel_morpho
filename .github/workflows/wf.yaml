@@ -15,6 +15,7 @@ jobs:
 
       - name: Compiler le projet
         run: |
+          cmake ..
           make
 
       - name: Exécuter le programme
