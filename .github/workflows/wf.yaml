@@ -9,4 +9,4 @@ jobs:
         npm ci
         npm run build
         npm test
-      name: Build and Test
+      
