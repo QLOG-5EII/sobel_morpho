@@ -1,24 +1,27 @@
 name: C/C++ CI
-on: 
+
+on:
   push:
-    branches: [ main ]
-   
+    branches: [ "main" ]
+
 jobs:
   build:
+
     runs-on: ubuntu-latest
 
     steps:
-      -name: Check out repository
+ 
+    - name: get file src git
       uses: actions/checkout@v4
-      -name: Compile
+    - name: compile
       run: |
         make
-      -name: Execute
+    - name: execute
       run: |
         ./generated/main.c
-      -name: Verify Execution 
-      run: | 
-        echo "Programa compilado"
+    - name: verify execution
+      run: |
+        echo "Tada Programme Bien execute"
         
 
       
