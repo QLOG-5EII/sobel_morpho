@@ -326,3 +326,28 @@ file(
 
 add_executable( sobel ${source_files} ${header_files})
 target_link_libraries(sobel ${SDL2_LIBRARY} ${SDL2TTF_LIBRARY} ${CMAKE_THREAD_LIBS_INIT} ${CMAKE_EXTRA_LIB})
+
+
+# *******************************************
+# **************** Tests ********************
+# *******************************************
+
+# Inclure les fichiers de test
+file(GLOB_RECURSE test_files ./test/*.c ./test/*.h)
+
+# Créer une cible pour les tests
+add_executable(tests ${test_files})
+
+# Ajouter les bibliothèques nécessaires aux tests
+target_link_libraries(tests ${SDL2_LIBRARY} ${SDL2TTF_LIBRARY} ${CMAKE_THREAD_LIBS_INIT} ${CMAKE_EXTRA_LIB})
+
+# Définir le répertoire d'inclusion pour les tests
+target_include_directories(tests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR}/test)
+
+# Ajouter une commande pour exécuter les tests après compilation
+add_custom_target(run_tests
+    COMMAND tests
+    DEPENDS tests
+    WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+    COMMENT "Exécution des tests unitaires"
+)
