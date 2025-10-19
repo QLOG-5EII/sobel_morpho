@@ -57,7 +57,12 @@ L'idée de cette section est de créer un hook qui vérifie que l'ensemble des f
     ```
 
 3. Renommez le fichier `.git/hooks/pre-commit.sample` par `.git/hooks/pre-commit` et remplacez son contenu par votre script. Pour empêcher un commit (dans le cas où un ou plusieurs fichiers ne sont pas bien formatés, le script doit renvoyer -1, en utilisant la commande `exit -1`, sinon, pour accepter l'exécution du commit, le script doit renvoyer 0.
-4. Les hooks se trouvent dans le dossier .git et ne sont par conséquent pas versionnés dans le projet sur GitHub. Proposez et implémentez des solutions pour que votre hook soit présent sur l'ensemble des clones de votre projet. Faites une pull request avec votre proposition.
+4. Les hooks se trouvent dans le dossier .git et ne sont par conséquent pas versionnés dans le projet sur GitHub. Proposez et implémentez des solutions pour que votre hook soit présent sur l'ensemble des clones de votre projet. Faites une pull request avec votre proposition. 
+
+# Copier le hook dans .git/hooks
+cp scripts/hooks/pre-commit .git/hooks/pre-commit
+chmod +x .git/hooks/pre-commit
+
 
 
 

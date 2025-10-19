@@ -1,0 +1,28 @@
+#!/bin/bash
+
+
+root=$(git rev-parse --show-toplevel)
+
+list=$(git diff --name-only --cached)
+
+bad_files=0
+
+# Boucle sur chaque fichier
+while IFS= read -r file; do
+    if [[ -f "$root/$file" ]] && [[ "$file" =~ \.(c|h)$ ]]; then
+        formatted=$(clang-format "$root/$file")
+        actual=$(cat "$root/$file")
+
+        if [[ "$formatted" != "$actual" ]]; then
+            echo " Le fichier n'est pas bien formaté : $file"
+            bad_files=1
+        fi
+    fi
+done <<< "$list"
+
+if [[ $bad_files -eq 1 ]]; then
+    exit -1  # Empêche le commit
+fi
+
+exit 0  # Tout est OK, le commit peut se faire
+
