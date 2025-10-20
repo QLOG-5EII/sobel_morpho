@@ -1,0 +1,25 @@
+name: CI Ubuntu
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build-and-run:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Récupération du code source
+      uses: actions/checkout@v4
+
+    - name: Compilation du projet
+      run: |
+        mkdir -p build
+        cd build
+        gcc ../*.c -o programme_executable
+        echo "Compilation terminée avec succès !"
+
+    - name: Exécution du programme
+      run: |
+        cd build
+        ./programme_executable
