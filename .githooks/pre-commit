@@ -1,0 +1,74 @@
+#!/usr/bin/env bash
+#
+# Pre-commit hook to verify that all staged C/C++ files are properly formatted
+# using clang-format before allowing a commit.
+#
+
+# Get the root directory of the Git repository
+root=$(git rev-parse --show-toplevel)
+
+# Get the list of staged files
+list=$(git diff --name-only --cached)
+
+# Flag to track if any files are incorrectly formatted
+formatted_incorrectly=0
+
+# Check if there are any staged files
+if [ -z "$list" ]; then
+    # No files staged, allow commit
+    exit 0
+fi
+
+echo "Checking code formatting with clang-format..."
+
+# Iterate over each staged file
+while IFS= read -r file; do
+    # Skip empty lines
+    if [ -z "$file" ]; then
+        continue
+    fi
+
+    # Only check C/C++ files (c, cpp, h, hpp extensions)
+    if [[ "$file" =~ \.(c|cpp|h|hpp)$ ]]; then
+        # Check if file exists (it might have been deleted)
+        if [ ! -f "$root/$file" ]; then
+            continue
+        fi
+
+        echo "  Checking: $file"
+
+        # Get the formatted version of the file
+        formatted=$(clang-format "$root/$file")
+
+        # Get the current content of the file
+        current=$(cat "$root/$file")
+
+        # Compare formatted vs current
+        if [ "$formatted" != "$current" ]; then
+            echo "  ❌ ERROR: File $file is not properly formatted"
+            formatted_incorrectly=1
+        else
+            echo "  ✅ OK: $file"
+        fi
+    fi
+done <<< "$list"
+
+# Exit with error if any files are incorrectly formatted
+if [ $formatted_incorrectly -eq 1 ]; then
+    echo ""
+    echo "==========================================="
+    echo "❌ COMMIT REJECTED - Formatting errors found"
+    echo "==========================================="
+    echo ""
+    echo "Please format the above files using clang-format before committing:"
+    echo "  clang-format -i <file>"
+    echo ""
+    echo "Or format all C/C++ files:"
+    echo "  clang-format -i src/*.c src/*.h"
+    echo ""
+    exit 1
+fi
+
+echo ""
+echo "✅ All files are properly formatted. Proceeding with commit..."
+exit 0

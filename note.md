@@ -401,10 +401,39 @@ https://github.com/QLOG-5EII/sobel_morpho/pull/14
 
 > **Assignment** - Create a Git hook that verifies all staged files are properly formatted using `clang-format` before allowing a commit.
 
-### Hook Script (`pre-commit`)
+### Context: What are Git Hooks?
+
+**Git hooks** are scripts that Git executes automatically before or after specific events (commit, push, merge, etc.). They allow you to:
+- Enforce code quality standards
+- Run automated tests
+- Validate commit messages
+- Check code formatting
+- Prevent commits that don't meet requirements
+
+Common hooks:
+- **pre-commit**: Runs before creating a commit (used here)
+- **commit-msg**: Validates commit message format
+- **pre-push**: Runs before pushing to remote
+- **post-merge**: Runs after a successful merge
+
+### Why Use a Pre-Commit Hook for Formatting?
+
+In large projects with many developers, maintaining consistent code style is challenging. A pre-commit hook ensures:
+- ✅ All code is formatted consistently before committing
+- ✅ No incorrectly formatted code enters the repository
+- ✅ Reduces code review noise (no "fix formatting" comments)
+- ✅ Automated enforcement (no manual checking needed)
+
+### ✅ Step 1: Write the Pre-Commit Hook Script
+
+Created a bash script that checks if staged C/C++ files are properly formatted:
 
 ```bash
-#!/bin/bash
+#!/usr/bin/env bash
+#
+# Pre-commit hook to verify that all staged C/C++ files are properly formatted
+# using clang-format before allowing a commit.
+#
 
 # Get the root directory of the Git repository
 root=$(git rev-parse --show-toplevel)
@@ -415,6 +444,14 @@ list=$(git diff --name-only --cached)
 # Flag to track if any files are incorrectly formatted
 formatted_incorrectly=0
 
+# Check if there are any staged files
+if [ -z "$list" ]; then
+    # No files staged, allow commit
+    exit 0
+fi
+
+echo "Checking code formatting with clang-format..."
+
 # Iterate over each staged file
 while IFS= read -r file; do
     # Skip empty lines
@@ -422,8 +459,15 @@ while IFS= read -r file; do
         continue
     fi
 
-    # Only check C/C++ files
+    # Only check C/C++ files (c, cpp, h, hpp extensions)
     if [[ "$file" =~ \.(c|cpp|h|hpp)$ ]]; then
+        # Check if file exists (it might have been deleted)
+        if [ ! -f "$root/$file" ]; then
+            continue
+        fi
+
+        echo "  Checking: $file"
+
         # Get the formatted version of the file
         formatted=$(clang-format "$root/$file")
 
@@ -432,8 +476,10 @@ while IFS= read -r file; do
 
         # Compare formatted vs current
         if [ "$formatted" != "$current" ]; then
-            echo "Error: File $file is not properly formatted"
+            echo "  ❌ ERROR: File $file is not properly formatted"
             formatted_incorrectly=1
+        else
+            echo "  ✅ OK: $file"
         fi
     fi
 done <<< "$list"
@@ -441,53 +487,179 @@ done <<< "$list"
 # Exit with error if any files are incorrectly formatted
 if [ $formatted_incorrectly -eq 1 ]; then
     echo ""
-    echo "Please run 'clang-format -i' on the above files before committing"
+    echo "==========================================="
+    echo "❌ COMMIT REJECTED - Formatting errors found"
+    echo "==========================================="
+    echo ""
+    echo "Please format the above files using clang-format before committing:"
+    echo "  clang-format -i <file>"
+    echo ""
+    echo "Or format all C/C++ files:"
+    echo "  clang-format -i src/*.c src/*.h"
+    echo ""
     exit 1
 fi
 
+echo ""
+echo "✅ All files are properly formatted. Proceeding with commit..."
 exit 0
 ```
 
-### Installation
+**Key features:**
+- Uses `#!/usr/bin/env bash` for portability (works on NixOS and other systems)
+- Gets repository root with `git rev-parse --show-toplevel`
+- Lists staged files with `git diff --name-only --cached`
+- Only checks C/C++ files (`.c`, `.cpp`, `.h`, `.hpp`)
+- Compares actual file content with `clang-format` output
+- Returns exit code 1 (error) if any file is incorrectly formatted
+- Returns exit code 0 (success) if all files are properly formatted
 
-1. **Create the hook:**
-   ```bash
-   cp .git/hooks/pre-commit.sample .git/hooks/pre-commit
-   # Replace the content with the script above
-   ```
+### ✅ Step 2: Install the Hook
 
-2. **Make it executable:**
-   ```bash
-   chmod +x .git/hooks/pre-commit
-   ```
+```bash
+# Copy the hook to .git/hooks/
+cp .githooks/pre-commit .git/hooks/pre-commit
 
-### Sharing Hooks Across the Team
+# Make it executable
+chmod +x .git/hooks/pre-commit
+```
 
-**Problem:** Hooks in `.git/hooks/` are not versioned by Git.
+### ✅ Step 3: Test the Hook
 
-**Solutions:**
+**Test 1: Commit properly formatted code (should succeed)**
+```bash
+git add note.md
+git commit -m "docs: Update documentation"
+```
 
-1. **Store hooks in a versioned directory:**
-   ```bash
-   mkdir -p .githooks
-   # Move your pre-commit script to .githooks/pre-commit
-   git add .githooks/pre-commit
-   git commit -m "chore: Add pre-commit formatting hook"
-   ```
+**Output:**
+```
+Checking code formatting with clang-format...
 
-   **Setup instructions for team members:**
-   ```bash
-   # After cloning, configure Git to use the custom hooks directory
-   git config core.hooksPath .githooks
-   ```
+✅ All files are properly formatted. Proceeding with commit...
+[workspace_sacha 01560b0] docs: Update note.md with Part 2 documentation
+ 1 file changed, 319 insertions(+), 45 deletions(-)
+```
 
-2. **Add setup script in `README.md`:**
-   ```markdown
-   ## Development Setup
+**Test 2: Commit badly formatted code (should fail)**
+```bash
+# Add a badly formatted line
+echo "int   badly_formatted(  int x,int y  ){return x+y;}" >> src/sobel.c
 
-   After cloning the repository, run:
-   ```bash
-   git config core.hooksPath .githooks
+# Try to commit
+git add src/sobel.c
+git commit -m "test: Try to commit badly formatted code"
+```
+
+**Output:**
+```
+Checking code formatting with clang-format...
+  Checking: src/sobel.c
+  ❌ ERROR: File src/sobel.c is not properly formatted
+
+===========================================
+❌ COMMIT REJECTED - Formatting errors found
+===========================================
+
+Please format the above files using clang-format before committing:
+  clang-format -i <file>
+
+Or format all C/C++ files:
+  clang-format -i src/*.c src/*.h
+```
+
+✅ **The hook works perfectly!** It prevents commits with incorrectly formatted code.
+
+### ✅ Step 4: Share Hooks Across the Team
+
+**Problem:** Git hooks in `.git/hooks/` are **not versioned** because the `.git` directory is never committed.
+
+**Solution:** Create a versioned `.githooks/` directory that team members can use.
+
+```bash
+# Create versioned hooks directory
+mkdir -p .githooks
+
+# Copy the pre-commit hook
+cp .git/hooks/pre-commit .githooks/pre-commit
+
+# Add to git
+git add .githooks/pre-commit
+git commit -m "chore: Add pre-commit hook for code formatting"
+```
+
+**Team Setup - Option 1: Configure Git to use .githooks**
+```bash
+# After cloning, each team member runs:
+git config core.hooksPath .githooks
+```
+
+This tells Git to use `.githooks/` instead of `.git/hooks/` for all hooks.
+
+**Team Setup - Option 2: Manual installation**
+```bash
+# After cloning, run:
+cp .githooks/pre-commit .git/hooks/pre-commit
+chmod +x .git/hooks/pre-commit
+```
+
+**Add instructions to README.md:**
+```markdown
+## Development Setup
+
+After cloning this repository, configure Git hooks:
+
+\`\`\`bash
+git config core.hooksPath .githooks
+\`\`\`
+
+This enables automatic code formatting checks before commits.
+```
+
+### What We Learned
+
+#### Git Hooks Concepts
+- **Hooks are scripts** that run automatically during Git operations
+- **Local only** - stored in `.git/hooks/` (not versioned)
+- **Must return exit codes** - `0` for success, non-zero for failure
+- **Can prevent actions** - returning error stops the commit/push
+
+#### Pre-Commit Hook Workflow
+1. Developer runs `git commit`
+2. Git executes `.git/hooks/pre-commit` (if it exists)
+3. Hook checks staged files
+4. If hook returns 0 → commit proceeds
+5. If hook returns non-zero → commit is aborted
+
+#### Bash Script Techniques
+- **`git rev-parse --show-toplevel`** - Get repository root path
+- **`git diff --name-only --cached`** - List staged files
+- **`while IFS= read -r line`** - Iterate over lines safely
+- **`[[ "$file" =~ \.(c|cpp)$ ]]`** - Regex pattern matching
+- **Exit codes** - `exit 0` (success), `exit 1` (error)
+
+#### Sharing Hooks Solutions
+| Method | Pros | Cons |
+|--------|------|------|
+| **Versioned `.githooks/` directory** | Easy to maintain, centralized | Requires one-time setup per clone |
+| **`core.hooksPath` config** | Automatic execution | Must remember to configure |
+| **Setup script** | Automated installation | Extra script to maintain |
+| **Documentation in README** | Clear instructions | Manual process |
+
+#### Best Practices
+- ✅ Use `#!/usr/bin/env bash` for portability
+- ✅ Provide clear error messages with solutions
+- ✅ Check file existence before processing
+- ✅ Only check relevant file types
+- ✅ Give visual feedback (✅/❌ icons)
+- ✅ Document setup process for team members
+
+#### Why This Matters
+- **Code consistency** - Entire team uses the same formatting
+- **Reduced code review** - No formatting discussions needed
+- **Automated enforcement** - Catches issues before they're committed
+- **Scalability** - Works for teams of any size
+- **Quality gates** - Part of a larger CI/CD strategy
    ```
 
 3. **Use a tool like `husky` (for Node.js projects) or create an install script:**
