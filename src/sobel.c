@@ -16,7 +16,7 @@
 
 void sobel(int width, int height, unsigned char *input, unsigned char *output) {
   int i, j;
-
+  // Ceci est un test pour le tp git, ne pas oublier de faire un faire un filtre moyenneur 
   // Apply the filter
   for (j = 1; j < height - 1; j++) {
     for (i = 1; i < width - 1; i++) {
